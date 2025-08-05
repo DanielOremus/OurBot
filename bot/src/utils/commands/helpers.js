@@ -1,35 +1,31 @@
-import path from "path"
-import fs from "fs"
-import { fileURLToPath, pathToFileURL } from "url"
-import { REST, Routes, Collection } from "discord.js"
-import { default as config } from "../../config/default.js"
+const path = require("path")
+const fs = require("fs")
+const { REST, Routes, Collection } = require("discord.js")
+const config = require("../../config/default.js")
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-function getFilePaths(currentPath, arr = []) {
+function getCommandFiles(currentPath, arr = []) {
   const foldersOrFiles = fs.readdirSync(currentPath, { withFileTypes: true })
 
   for (const folderOrFile of foldersOrFiles) {
     const currPath = path.join(currentPath, folderOrFile.name)
-    if (folderOrFile.isDirectory()) getFilePaths(currPath, arr)
+    if (folderOrFile.isDirectory()) getCommandFiles(currPath, arr)
     if (folderOrFile.name.endsWith(".js"))
-      arr.push({ name: folderOrFile.name, path: pathToFileURL(currPath) })
+      arr.push({ name: folderOrFile.name, path: currPath })
   }
 
   return arr
 }
 
-export const getCommands = async () => {
+module.exports.getCommands = () => {
   const commandsArr = []
   const commandsCollection = new Collection()
   const commandsNamePath = {}
 
   const commandFolderPath = path.join(__dirname, "../../commands")
-  const commandFiles = getFilePaths(commandFolderPath)
+  const commandFiles = getCommandFiles(commandFolderPath)
 
   for (const file of commandFiles) {
-    const { default: command } = await import(file.path)
+    const command = require(file.path)
 
     if (!command.data || !command.execute) {
       console.log(
@@ -45,7 +41,7 @@ export const getCommands = async () => {
   return { commandsArr, commandsCollection, commandsNamePath }
 }
 
-export const registerCommands = async (commandsArr) => {
+module.exports.registerCommands = async (commandsArr) => {
   try {
     console.log(
       `Started refreshing ${commandsArr.length} application (/) commands.`

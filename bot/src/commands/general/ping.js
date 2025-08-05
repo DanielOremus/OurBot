@@ -1,14 +1,11 @@
-import CommandBuilder from "../../utils/commands/CommandBuilder.js"
-import { MessageFlags } from "discord.js"
+const CommandBuilder = require("../../utils/commands/CommandBuilder.js")
 
 const commandObj = new CommandBuilder({
   name: "ping",
   description: "Replies with pong.",
   executeFunc: async (interaction) => {
-    console.log("Hello")
-
-    await interaction.reply({ content: "Pong!", flags: MessageFlags.Ephemeral })
+    await interaction.reply("Pong!")
   },
 })
 
-export default commandObj.build()
+module.exports = commandObj.build()

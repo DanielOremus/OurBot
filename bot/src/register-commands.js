@@ -1,4 +1,4 @@
-import { getCommands, registerCommands } from "./utils/commands/helpers.js"
+const { getCommands, registerCommands } = require("./utils/commands/helpers.js")
 
-const { commandsArr } = await getCommands()
-await registerCommands(commandsArr)
+const { commandsArr } = getCommands()
+registerCommands(commandsArr)

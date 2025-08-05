@@ -1,5 +1,5 @@
-import { MessageFlags } from "discord.js"
-import CommandBuilder from "../../utils/commands/CommandBuilder.js"
+const { MessageFlags } = require("discord.js")
+const CommandBuilder = require("../../utils/commands/CommandBuilder")
 
 const commandObj = new CommandBuilder({
   name: "reload",
@@ -28,31 +28,24 @@ const commandObj = new CommandBuilder({
     }
 
     try {
-      const resolved = import.meta.resolve(
-        interaction.client.commandsPaths[commandName]
-      )
-      console.log(resolved)
-
-      console.log(import.meta)
-
-      // delete import.meta.constructor__cache[resolved]
-
-      const { default: module } = await import(resolved)
+      const modulePath = interaction.client.commandsPaths[commandName]
+      delete require.cache?.[modulePath]
+      const module = require(modulePath)
 
       interaction.client.commands.set(module.data.name, module)
 
-      interaction.reply({
+      await interaction.reply({
         content: `Command \`${commandName}\` was reloaded successfully!`,
+        flags: MessageFlags.Ephemeral,
       })
-      // const command
-      //todo: finish logic
     } catch (error) {
       console.error(error)
-      await interaction.reply(
-        `There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``
-      )
+      await interaction.reply({
+        content: `❌ There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``,
+        flags: MessageFlags.Ephemeral,
+      })
     }
   },
 })
 
-export default commandObj.build()
+module.exports = commandObj.build()

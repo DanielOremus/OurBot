@@ -1,31 +1,27 @@
-import path from "path"
-import fs from "fs"
-import { fileURLToPath } from "url"
-import { pathToFileURL } from "url"
+const path = require("path")
+const fs = require("fs")
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-async function getFiles() {
+function getFiles() {
   //TODO: refactor for recursion
+  //TODO: add multi lang support (en, ua) via i18next
   const eventsPath = path.join(__dirname, "../../events")
   let files = fs.readdirSync(eventsPath)
-  const promises = []
+  const modules = []
 
   for (const file of files) {
     if (!file.endsWith(".js")) continue
-    const filePath = pathToFileURL(path.join(eventsPath, file))
-    promises.push(import(filePath))
+    const filePath = path.join(eventsPath, file)
+    modules.push(require(filePath))
   }
 
-  return await Promise.all(promises)
+  return modules
 }
 
-export const registerEvents = async (client) => {
+module.exports.registerEvents = async (client) => {
   try {
-    const events = await getFiles()
+    const events = getFiles()
 
-    for (const { default: event } of events) {
+    for (const event of events) {
       if (event.once) {
         client.once(event.name, (...args) => event.execute(...args))
       } else {

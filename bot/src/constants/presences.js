@@ -1,6 +1,6 @@
-import { ActivityType } from "discord.js"
+const { ActivityType } = require("discord.js")
 
-export default [
+module.exports = [
   {
     name: "Documentation",
     type: ActivityType.Watching,

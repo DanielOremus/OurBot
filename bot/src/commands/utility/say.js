@@ -1,4 +1,4 @@
-import CommandBuilder from "../../utils/commands/CommandBuilder.js"
+const CommandBuilder = require("../../utils/commands/CommandBuilder.js")
 
 const commandObj = new CommandBuilder({
   name: "say",
@@ -24,4 +24,4 @@ const commandObj = new CommandBuilder({
   },
 })
 
-export default commandObj.build()
+module.exports = commandObj.build()

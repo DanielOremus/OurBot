@@ -1,6 +1,6 @@
-import "dotenv/config"
+require("dotenv").config({ quiet: true })
 
-export default Object.freeze({
+module.exports = Object.freeze({
   bot: {
     token: process.env.TOKEN,
     guildId: process.env.GUILD_ID,

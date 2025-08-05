@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js"
+const { SlashCommandBuilder } = require("discord.js")
 
 class CommandBuilder {
   constructor({ name, description, executeFunc, options = [] }) {
@@ -7,6 +7,10 @@ class CommandBuilder {
     this.options = options
     this.executeFunc = executeFunc
     this.commandObj = {}
+  }
+  buildOptionPipeLine(o, name, desc, isRequired = false) {
+    o.setName(name).setDescription(desc).setRequired(isRequired)
+    return o
   }
   buildDataPipeline() {
     const data = new SlashCommandBuilder()
@@ -29,13 +33,13 @@ class CommandBuilder {
           })
           break
         case "integer":
-          data.addIntegerOption((o) =>
-            o.setName(name).setDescription(description).setRequired(required)
+          data.addIntegerOption(
+            this.buildOptionPipeLine(o, name, description, required)
           )
           break
         case "boolean":
           data.addBooleanOption((o) =>
-            o.setName(name).setDescription(description).setRequired(required)
+            this.buildOptionPipeLine(o, name, description, required)
           )
           break
         case "user":
@@ -86,4 +90,4 @@ class CommandBuilder {
   }
 }
 
-export default CommandBuilder
+module.exports = CommandBuilder

@@ -8,7 +8,7 @@ export default {
     const command = interaction.client.commands.get(interaction.commandName)
 
     if (!command) {
-      console.error(`Command '${interaction.commandName}' not found!`)
+      console.error(`❌ Command \`${interaction.commandName}\` not found!`)
       return
     }
 

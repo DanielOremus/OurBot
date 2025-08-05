@@ -3,10 +3,12 @@ import { MessageFlags } from "discord.js"
 
 const commandObj = new CommandBuilder({
   name: "ping",
-  description: "Replies with 'pong'",
+  description: "Replies with pong.",
   executeFunc: async (interaction) => {
+    console.log("Hello")
+
     await interaction.reply({ content: "Pong!", flags: MessageFlags.Ephemeral })
   },
-}).build()
+})
 
-export default commandObj
+export default commandObj.build()

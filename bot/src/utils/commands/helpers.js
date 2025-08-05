@@ -4,42 +4,45 @@ import { fileURLToPath, pathToFileURL } from "url"
 import { REST, Routes, Collection } from "discord.js"
 import { default as config } from "../../config/default.js"
 
-//TODO: refactor code
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-export const getCommands = async () => {
-  //TODO: refactor for recursion
+function getFilePaths(currentPath, arr = []) {
+  const foldersOrFiles = fs.readdirSync(currentPath, { withFileTypes: true })
 
-  const commandsArr = []
-  const commandsCollection = new Collection()
-  const foldersPath = path.join(__dirname, "../../commands")
-
-  const folders = fs.readdirSync(foldersPath, { withFileTypes: true })
-
-  for (const folder of folders) {
-    if (!folder.isDirectory()) continue
-    const filesPath = path.join(foldersPath, folder.name)
-
-    const files = fs.readdirSync(filesPath)
-    for (const file of files) {
-      if (!file.endsWith(".js")) continue
-      const commandPath = pathToFileURL(path.join(filesPath, file))
-      const { default: command } = await import(commandPath)
-
-      if (!command.data || !command.execute) {
-        console.log(
-          `[WARNING] The command at ${file} is missing a required "data" or "execute" property.`
-        )
-        continue
-      }
-
-      commandsArr.push(command)
-      commandsCollection.set(command.data.name, command)
-    }
+  for (const folderOrFile of foldersOrFiles) {
+    const currPath = path.join(currentPath, folderOrFile.name)
+    if (folderOrFile.isDirectory()) getFilePaths(currPath, arr)
+    if (folderOrFile.name.endsWith(".js"))
+      arr.push({ name: folderOrFile.name, path: pathToFileURL(currPath) })
   }
 
-  return { commandsArr, commandsCollection }
+  return arr
+}
+
+export const getCommands = async () => {
+  const commandsArr = []
+  const commandsCollection = new Collection()
+  const commandsNamePath = {}
+
+  const commandFolderPath = path.join(__dirname, "../../commands")
+  const commandFiles = getFilePaths(commandFolderPath)
+
+  for (const file of commandFiles) {
+    const { default: command } = await import(file.path)
+
+    if (!command.data || !command.execute) {
+      console.log(
+        `[WARNING] The command at ${file.name} is missing a required "data" or "execute" property.`
+      )
+      continue
+    }
+
+    commandsArr.push(command)
+    commandsCollection.set(command.data.name, command)
+    commandsNamePath[command.data.name] = file.path
+  }
+  return { commandsArr, commandsCollection, commandsNamePath }
 }
 
 export const registerCommands = async (commandsArr) => {

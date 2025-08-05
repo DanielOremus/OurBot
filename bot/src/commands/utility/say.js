@@ -22,6 +22,6 @@ const commandObj = new CommandBuilder({
     const shout = interaction.options.getBoolean("shout") ?? false
     await interaction.reply(shout ? msg.toUpperCase() : msg)
   },
-}).build()
+})
 
-export default commandObj
+export default commandObj.build()

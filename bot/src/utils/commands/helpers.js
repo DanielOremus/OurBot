@@ -9,6 +9,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export const getCommands = async () => {
+  //TODO: refactor for recursion
+
   const commandsArr = []
   const commandsCollection = new Collection()
   const foldersPath = path.join(__dirname, "../../commands")
@@ -22,8 +24,8 @@ export const getCommands = async () => {
     const files = fs.readdirSync(filesPath)
     for (const file of files) {
       if (!file.endsWith(".js")) continue
-      const commandPath = path.join(filesPath, file)
-      const { default: command } = await import(pathToFileURL(commandPath))
+      const commandPath = pathToFileURL(path.join(filesPath, file))
+      const { default: command } = await import(commandPath)
 
       if (!command.data || !command.execute) {
         console.log(

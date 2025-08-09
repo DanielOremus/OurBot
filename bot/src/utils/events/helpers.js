@@ -1,27 +1,15 @@
+const { getFiles } = require("../functions/filesHelper.js")
 const path = require("path")
-const fs = require("fs")
+//TODO: refactor for recursion
+//TODO: add multi lang support (en, ua) via i18next
 
-function getFiles() {
-  //TODO: refactor for recursion
-  //TODO: add multi lang support (en, ua) via i18next
-  const eventsPath = path.join(__dirname, "../../events")
-  let files = fs.readdirSync(eventsPath)
-  const modules = []
-
-  for (const file of files) {
-    if (!file.endsWith(".js")) continue
-    const filePath = path.join(eventsPath, file)
-    modules.push(require(filePath))
-  }
-
-  return modules
-}
-
-module.exports.registerEvents = async (client) => {
+exports.registerEvents = async (client) => {
   try {
-    const events = getFiles()
+    const eventsFolderPath = path.join(__dirname, "../../events")
+    const eventsFiles = getFiles(eventsFolderPath)
 
-    for (const event of events) {
+    for (const file of eventsFiles) {
+      const event = require(file.path)
       if (event.once) {
         client.once(event.name, (...args) => event.execute(...args))
       } else {

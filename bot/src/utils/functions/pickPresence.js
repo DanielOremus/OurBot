@@ -5,7 +5,7 @@ function getRandomPresence(presences) {
   return presences[rand]
 }
 
-module.exports = attachPresencePicker = (client) => {
+module.exports = function attachPresencePicker(client) {
   client.pickPresence = () => {
     const presence = getRandomPresence(presencesArr)
 

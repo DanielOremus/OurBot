@@ -1,28 +1,15 @@
 const path = require("path")
-const fs = require("fs")
 const { REST, Routes, Collection } = require("discord.js")
 const config = require("../../config/default.js")
+const { getFiles } = require("../functions/filesHelper.js")
 
-function getCommandFiles(currentPath, arr = []) {
-  const foldersOrFiles = fs.readdirSync(currentPath, { withFileTypes: true })
-
-  for (const folderOrFile of foldersOrFiles) {
-    const currPath = path.join(currentPath, folderOrFile.name)
-    if (folderOrFile.isDirectory()) getCommandFiles(currPath, arr)
-    if (folderOrFile.name.endsWith(".js"))
-      arr.push({ name: folderOrFile.name, path: currPath })
-  }
-
-  return arr
-}
-
-module.exports.getCommands = () => {
+exports.getCommands = () => {
   const commandsArr = []
   const commandsCollection = new Collection()
   const commandsNamePath = {}
 
   const commandFolderPath = path.join(__dirname, "../../commands")
-  const commandFiles = getCommandFiles(commandFolderPath)
+  const commandFiles = getFiles(commandFolderPath)
 
   for (const file of commandFiles) {
     const command = require(file.path)
@@ -41,11 +28,9 @@ module.exports.getCommands = () => {
   return { commandsArr, commandsCollection, commandsNamePath }
 }
 
-module.exports.registerCommands = async (commandsArr) => {
+exports.registerCommands = async (commandsArr) => {
   try {
-    console.log(
-      `Started refreshing ${commandsArr.length} application (/) commands.`
-    )
+    console.log(`Started refreshing ${commandsArr.length} application (/) commands.`)
 
     const rest = new REST().setToken(config.bot.token)
 
@@ -54,9 +39,7 @@ module.exports.registerCommands = async (commandsArr) => {
       { body: commandsArr.map((c) => c.data.toJSON()) }
     )
 
-    console.log(
-      `Successfully reloaded ${data.length} application (/) commands.`
-    )
+    console.log(`Successfully reloaded ${data.length} application (/) commands.`)
   } catch (error) {
     console.error(error)
   }
